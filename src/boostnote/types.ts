@@ -1,3 +1,8 @@
+export interface LoadedItem {
+    readonly note: Note;
+    readonly filename: string;
+}
+
 export interface Note {
     createdAt: string;
     updatedAt: string;

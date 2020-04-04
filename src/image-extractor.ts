@@ -1,5 +1,4 @@
 import path from 'path';
-import * as bn from './types/boostnote';
 
 interface Image {
     readonly filename: string;
@@ -7,7 +6,7 @@ interface Image {
     readonly text: string;
 };
 
-export default function extract({ content }: Pick<bn.Note, 'content'>): Image[] {
+export default function extract(content: string): Image[] {
     if (content == null) return [];
     if (/:storage\//.test(content) === false) return []
     const links = match(content);

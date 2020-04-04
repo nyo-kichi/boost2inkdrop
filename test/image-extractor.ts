@@ -17,7 +17,7 @@ describe('extract()', () => {
             '![1871e8b6.png](:storage/fa0e2f95-7744-48f4-8ea0-120fffbf708e/1871e8b6.png)\n' +
             '\n';
 
-        const images = extract({ content });
+        const images = extract(content);
 
         assert.deepStrictEqual(images, [
             {
