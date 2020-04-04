@@ -3,7 +3,8 @@ import { promises as fs, Dirent } from 'fs';
 import CSON from 'cson-parser';
 import mkdirp from 'mkdirp';
 
-import * as bn from './boostnote';
+import * as bn from './types/boostnote';
+import extractImages from './image-extractor';
 
 export default class Migrator {
     private readonly dir: {
@@ -63,17 +64,35 @@ export default class Migrator {
         return mig;
     }
 
+    public async migrate(): Promise<void> {
+        await this.load();
+
+        while (true) {
+            const dirent = this.nextEntry();
+            if (dirent == null) break;
+
+            const filename = dirent.name;
+
+            const note = await this.parse(filename);
+            const images = extractImages(note);
+console.log('--', filename, '--');
+console.log(images);
+console.log(note);
+        }
+    }
+
     public async test(): Promise<void> {
         await this.load();
 
         const dirent = this.nextEntry();
         if (dirent == null) return;
 
-        // const filename = dirent.name;
-        const filename = 'fa0e2f95-7744-48f4-8ea0-120fffbf708e.cson';
+        const filename = dirent.name;
+        // const filename = 'fa0e2f95-7744-48f4-8ea0-120fffbf708e.cson';
 
         const note = await this.parse(filename);
-
+        console.log('--', filename, '--');
+        // extractImages(note);
         console.log(note);
     }
 }
