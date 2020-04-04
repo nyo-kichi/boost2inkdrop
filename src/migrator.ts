@@ -5,31 +5,43 @@ import mkdirp from 'mkdirp';
 
 import * as bn from './boostnote';
 
-const BOOST_DIR = path.join(process.env.HOME ?? '', 'files/Dropbox/Boostnote/');
-const ROOT_DIR = path.resolve('..', __dirname);
-
 export default class Migrator {
-    private readonly outDir: string;
-    private readonly storageDir: string;
+    private readonly dir: {
+        boost: string;
+        note: string;
+        out: string;
+        storage: string;
+    };
+    private readonly storage: string;
+
     private entries: Dirent[] = [];
     private current = 0;
 
     public constructor(opts: Options) {
-        const { outDir, storage } = opts;
-        this.outDir = outDir;
-        this.storageDir = path.join(BOOST_DIR, storage);
+        const { boostDir, outDir, storage } = opts;
+
+        const storageDir = path.join(boostDir, storage);
+        const noteDir = path.join(storageDir, 'notes');
+        this.dir = {
+            boost: boostDir,
+            note: noteDir,
+            out: outDir,
+            storage: storageDir,
+        };
+        this.storage = storage;
     }
 
-    private get noteDir(): string {
-        return path.join(this.storageDir, 'notes');
+    private async init(): Promise<void> {
+        const made = await mkdirp(this.dir.out);
+        if (made) console.warn(`made directories: ${this.dir.out}`);
     }
 
     private notePath(filename: string): string {
-        return path.join(this.noteDir, filename);
+        return path.join(this.dir.note, filename);
     }
 
     private async load(): Promise<void> {
-        this.entries = await fs.readdir(this.noteDir, { withFileTypes: true });
+        this.entries = await fs.readdir(this.dir.note, { withFileTypes: true });
     }
 
     private nextEntry(): Dirent | null {
@@ -45,13 +57,10 @@ export default class Migrator {
         return CSON.parse(cson);
     }
 
-    public static async create(storage: string): Promise<Migrator> {
-        const outDir = path.join(ROOT_DIR, 'out');
-
-        const made = await mkdirp(outDir);
-        if (made) console.warn(`made directories: ${outDir}`);
-
-        return new Migrator({ outDir, storage });
+    public static async create(opts: Options): Promise<Migrator> {
+        const mig = new Migrator(opts);
+        await mig.init();
+        return mig;
     }
 
     public async test(): Promise<void> {
@@ -70,6 +79,7 @@ export default class Migrator {
 }
 
 interface Options {
-    storage: string;
+    boostDir: string;
     outDir: string;
+    storage: string;
 }
