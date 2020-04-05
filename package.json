@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
+    "clean": "rimraf .build",
     "test": "jest"
   },
   "author": "nyo-kichi",
@@ -20,6 +21,7 @@
     "babel-preset-power-assert": "^3.0.0",
     "jest": "^25.2.7",
     "power-assert": "^1.6.1",
+    "rimraf": "^3.0.2",
     "ts-jest": "^25.3.1"
   }
 }
