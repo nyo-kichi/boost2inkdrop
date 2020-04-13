@@ -1,10 +1,10 @@
 import * as path from 'path';
 import { promises as fs, Dirent } from 'fs';
-import CSON from 'cson-parser';
+import * as CSON from 'cson-parser';
 
 import * as types from './types';
 
-export default class Loader {
+export class Loader {
     private readonly dir: {
         boost: string;
         note: string;
@@ -34,14 +34,14 @@ export default class Loader {
         return loader;
     }
 
-    public async next(): Promise<types.LoadedItem | null> {
+    public async next(): Promise<types.Note | null> {
         const dirent = this.nextEntry();
         if (dirent == null) return null;
 
         const filename = dirent.name;
-        const note = await this.parse(filename);
+        const cson = await this.parse(filename);
 
-        return { note, filename };
+        return { cson, filename };
     }
 
     private notePath(filename: string): string {
@@ -59,10 +59,10 @@ export default class Loader {
         return dirent;
     }
 
-    private async parse(filename: string): Promise<types.Note> {
+    private async parse(filename: string): Promise<types.Cson> {
         const path = this.notePath(filename);
-        const cson = await fs.readFile(path, 'utf-8');
-        return CSON.parse(cson);
+        const content = await fs.readFile(path, 'utf-8');
+        return CSON.parse(content);
     }
 }
 

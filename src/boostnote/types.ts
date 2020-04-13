@@ -1,9 +1,9 @@
-export interface LoadedItem {
-    readonly note: Note;
+export interface Note {
+    readonly cson: Cson;
     readonly filename: string;
 }
 
-export interface Note {
+export interface Cson {
     createdAt: string;
     updatedAt: string;
     content: string;
