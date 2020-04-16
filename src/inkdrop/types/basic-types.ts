@@ -1,3 +1,7 @@
+export type ImageFileType =
+    'image/png' | 'image/jpeg' | 'image/jpg' |
+    'image/svg+xml' | 'image/gif' | 'image/heic' | 'image/heif';
+
 export enum NoteStatus {
     NONE = 'none',
     ACTIVE = 'active',

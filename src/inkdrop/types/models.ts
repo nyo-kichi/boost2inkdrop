@@ -1,4 +1,4 @@
-import * as types from './enum';
+import * as types from './basic-types';
 
 // cf. flowtype https://github.com/inkdropapp/inkdrop-model
 
@@ -13,6 +13,25 @@ export interface BookMetadata {
 
 export interface Book extends BookMetadata {
     readonly name: string
+}
+
+export type FileAttachmentItem = {
+    readonly content_type: types.ImageFileType;
+    readonly data: Buffer | string;
+}
+
+export interface File {
+    readonly _id: string;
+    readonly _rev?: string;
+    readonly name: string;
+    readonly createdAt: number;
+    readonly contentType: types.ImageFileType;
+    readonly contentLength: number;
+    readonly publicIn: string[];
+    readonly _attachments: {
+        readonly index: FileAttachmentItem;
+    },
+    readonly md5digest?: string;
 }
 
 export interface NoteMetadata {

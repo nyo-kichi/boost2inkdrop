@@ -2,7 +2,7 @@ import * as models from './models';
 
 export interface LocalDB {
     readonly books: DBBook;
-    readonly files: Base;
+    readonly files: DBFile;
     readonly notes: DBNote;
     readonly tags: DBTag;
     readonly utils: any;
@@ -18,6 +18,10 @@ interface Base {
     removeBatch(docIds: string[]): Promise<Result[]>;
     countAll(): Promise<number>;
     all(opts?: any): Promise<any>;
+}
+
+interface DBFile extends Base {
+    put(doc: models.File): Promise<Result>;
 }
 
 interface DBNote extends Base {
