@@ -50,6 +50,9 @@ interface Props {
     readonly book: Book;
     readonly tags: Tag[];
     readonly title: string;
+
+    readonly createdAt?: number;
+    readonly updatedAt?: number;
 }
 
 type NoteProps = BaseProps & Props;
