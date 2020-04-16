@@ -5,11 +5,12 @@ import * as CSON from 'cson-parser';
 import * as types from './types';
 
 export class Loader {
-    private readonly dir: {
+    public readonly dir: {
         boost: string;
         note: string;
         storage: string;
     };
+
     private readonly storage: string;
 
     private entries: Dirent[] = [];
