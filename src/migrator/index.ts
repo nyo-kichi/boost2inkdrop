@@ -49,6 +49,12 @@ export class Migrator {
         const files: models.File[] = [];
         for (const image of images) {
             const file = await this.file(image);
+
+            if (file == null) {
+                console.warn(`file not found: ${this.imagePath(image)}`);
+                continue;
+            }
+
             body = replace(body, image, file);
             files.push(file);
         }
@@ -56,9 +62,15 @@ export class Migrator {
         return [body, files];
     }
 
-    private async file(image: img.Image): Promise<models.File> {
+    private async file(image: img.Image): Promise<models.File | null> {
         const path = this.imagePath(image);
-        const data: Buffer = await fs.readFile(path);
+
+        let data!: Buffer;
+        try {
+            data = await fs.readFile(path);
+        } catch (e) {
+            return null
+        }
 
         return await models.File.create(this.db, {
             contentLength: data.length,
