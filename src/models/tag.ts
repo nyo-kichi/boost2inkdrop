@@ -17,7 +17,7 @@ export class Tag extends Base {
         const _id = db.tags.createId();
         const tag = new Tag({ _id, name });
 
-        // tag.store(db);
+        tag.store(db);
 
         return tag;
     }
