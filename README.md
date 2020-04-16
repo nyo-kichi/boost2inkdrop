@@ -22,14 +22,14 @@ $ npm run build
 
 Create [`init.js`](https://docs.inkdrop.app/manual/the-init-file), the following code:
 
-```:init.js
+```js:init.js
 const path = require('path');
-const migrate = require('/path/to/boost2inkdrop/.build/src').default;
+const ope = require('/path/to/boost2inkdrop/.build/src/operations');
 
 const BOOST_DIR = path.resolve('/path/to/Boostnote/dir');
 
 async function main() {
-    await migrate({
+    await ope.migrate({
         boostDir: BOOST_DIR,
         storage: 'my-storage',
     });
