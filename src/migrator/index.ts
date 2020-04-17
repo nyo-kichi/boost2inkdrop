@@ -80,6 +80,8 @@ export class Migrator {
             files.push(file);
         }
 
+        body = replace.header(body);
+
         return [body, files];
     }
 

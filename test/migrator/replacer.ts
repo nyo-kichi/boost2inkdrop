@@ -3,6 +3,38 @@ import * as replace from 'src/migrator/replacer';
 import { File } from 'src/models';
 import { extract } from 'src/migrator/image';
 
+describe('header()', () => {
+    it('should delete a header in content correctly', () => {
+        let noheader: string;
+        noheader = replace.header(`# title
+content`);
+        assert(noheader === 'content');
+
+        noheader = replace.header(`# title
+
+content`);
+        assert(noheader === 'content');
+
+        noheader = replace.header(`# title
+
+
+content`);
+        assert(noheader === '\ncontent');
+    });
+
+    it('should trim start in content correctly', () => {
+        let noheader: string;
+        noheader = replace.header(` # title
+content`);
+        assert(noheader === 'content');
+
+        noheader = replace.header(`a # title
+
+content`);
+        assert(noheader === 'a # title\n\ncontent');
+    });
+});
+
 describe('image()', () => {
     it('should replace images correctly', () => {
         const c = content();
