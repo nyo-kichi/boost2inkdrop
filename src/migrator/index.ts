@@ -31,6 +31,10 @@ export class Migrator {
 
             console.info(`migrate: ${filename}`);
 
+            if (cson.type !== 'MARKDOWN_NOTE') {
+                console.warn('skip a note because cson type is not MARKDOWN_NOTE:', filename);
+                continue;
+            }
             if (cson.title === '' && cson.content === '') {
                 console.warn('skip a note because title and content is empty:', filename);
                 continue;
