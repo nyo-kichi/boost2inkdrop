@@ -29,11 +29,11 @@ export async function deleteAllNotesInBook(bookName: string): Promise<void> {
 
     const ids = notes.map((note: any) => note._id);
 
-    const results = await db.notes.removeBatch(ids);
-    console.info('removeBatch():', ids.length);
-
-    for (const { ok, id } of results) {
-        if (ok) continue;
-        console.error('failed to remove:', id);
+    let results!: any[];
+    try {
+        results = await db.notes.removeBatch(ids);
+    } catch (e) {
+        console.error('failed to removeBatch:', e.message);
     }
+    console.info('removeBatch():', results.length);
 }

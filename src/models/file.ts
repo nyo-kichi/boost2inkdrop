@@ -19,30 +19,30 @@ export class File extends Base {
 
     public static async create(db: ink.DB, props: Props): Promise<File> {
         const _id = db.files.createId();
-        const file = new File({ _id, ...props });
+        const file = new File({ _id, ...props, isNew: true });
 
         file.store(db);
 
         return file;
     }
 
-    private async store(db: ink.DB): Promise<void> {
-        const { contentType, data, ...rest } = this;
+    public async store(db: ink.DB): Promise<void> {
+        const { isNew, contentType, data, ...rest } = this;
+        if (isNew === false) return;
 
-        const { ok } = await db.files.put({
-            ...rest,
-            contentType,
+        try {
+            await db.files.put({
+                ...rest,
+                contentType,
 
-            _attachments: {
-                index: {
-                    content_type: contentType,
-                    data,
-                }
-            },
-            publicIn: [],
-        });
-
-        if (ok ===false) throw new Error(`failed to put file: ${this._id} ${this.name}`);
+                _attachments: {
+                    index: { content_type: contentType, data },
+                },
+                publicIn: [],
+            });
+        } catch (e) {
+            throw new Error(`failed to put file: ${this._id} ${this.name}: ${e.message}`);
+        }
     }
 }
 

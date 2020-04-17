@@ -12,23 +12,28 @@ export class Tag extends Base {
 
     public static async create(db: ink.DB, { name }: Props): Promise<Tag> {
         const doc: ink.Tag = await db.tags.findWithName(name);
-        if (doc != null) return new Tag(doc);
+        if (doc != null) return new Tag({ ...doc, isNew: false });
 
         const _id = db.tags.createId();
-        const tag = new Tag({ _id, name });
+        const tag = new Tag({ _id, name, isNew: true });
 
         tag.store(db);
 
         return tag;
     }
 
-    private async store(db: ink.DB): Promise<void> {
-        const { ok } = await db.tags.put({
-            ...this,
-            color: ink.TagColor.DEFAULT,
-        });
+    public async store(db: ink.DB): Promise<void> {
+        const { isNew, ...rest } = this;
+        if (isNew === false) return;
 
-        if (ok ===false) throw new Error(`failed to put tag: ${this._id} ${this.name}`);
+        try {
+            await db.tags.put({
+                ...rest,
+                color: ink.TagColor.DEFAULT,
+            });
+        } catch (e) {
+            throw new Error(`failed to put tag: ${this._id} ${this.name}: ${e.message}`);
+        }
     }
 }
 

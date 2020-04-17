@@ -9,6 +9,11 @@ export class Migrator {
     private readonly db: ink.DB;
     private readonly loader: boost.Loader;
 
+    // for rollback, but not implement
+    private files: Map<string, models.File> = new Map();
+    private notes: Map<string, models.Note> = new Map();
+    private tags: Map<string, models.Tag> = new Map();
+
     public constructor(opts: { db: ink.DB, loader: boost.Loader }) {
         const { db, loader } = opts;
         this.db = db;
@@ -17,29 +22,40 @@ export class Migrator {
 
     public async migrate(bookName: string): Promise<void> {
         const book = await models.Book.create(this.db, { name: bookName });
-        await this._migrate(book);
-    }
 
-    private async _migrate(book: models.Book): Promise<void> {
         while (true) {
             const item = await this.loader.next();
             if (item == null) break;
 
             const { cson, filename } = item;
+
+            console.info(`migrate: ${filename}`);
+
             if (cson.title === '' && cson.content === '') {
-                console.info('skip a note because title and content is empty:', filename);
+                console.warn('skip a note because title and content is empty:', filename);
                 continue;
             }
 
-            const createdAt = Date.parse(cson.createdAt);
-            const updatedAt = Date.parse(cson.updatedAt);
-
-            const [body] = await this.convert(cson.content);
-            const tags = await this.tags(cson);
-
-            const { title } = cson;
-            await models.Note.create(this.db, { body, book, tags, title, createdAt, updatedAt });
+            try {
+                await this._migrate({ book, item });
+            } catch (e) {
+                console.error(`failed to migrate ${filename}: ${e.message}`);
+            }
         }
+    }
+
+    private async _migrate(opts: { book: models.Book; item: boost.Note }): Promise<void> {
+        const { book, item } = opts;
+        const { cson } = item;
+
+        const createdAt = Date.parse(cson.createdAt);
+        const updatedAt = Date.parse(cson.updatedAt);
+
+        const [body] = await this.convert(cson.content);
+        const tags = await Promise.all(cson.tags.map(name => this.tag(name)));
+
+        const { title } = cson;
+        await this.note({ body, book, tags, title, createdAt, updatedAt });
     }
 
     private async convert(content: string): Promise<[string, models.File[]]> {
@@ -63,21 +79,31 @@ export class Migrator {
     }
 
     private async file(image: img.Image): Promise<models.File | null> {
-        const path = this.imagePath(image);
+        const data = await this.imageData(image);
+        if (data == null) return null;
 
-        let data!: Buffer;
-        try {
-            data = await fs.readFile(path);
-        } catch (e) {
-            return null
-        }
-
-        return await models.File.create(this.db, {
+        const file = await models.File.create(this.db, {
             contentLength: data.length,
             contentType: mime(image),
             name: image.filename,
             data,
         });
+
+        if (file.isNew) this.files.set(file._id, file);
+
+        return file;
+    }
+
+    private async imageData(image: img.Image): Promise<Buffer | null> {
+        const path = this.imagePath(image);
+
+        let buf!: Buffer;
+        try {
+            buf = await fs.readFile(path);
+        } catch (e) {
+            return null
+        }
+        return buf;
     }
 
     private imagePath({ filename, url }: img.Image): string {
@@ -89,8 +115,16 @@ export class Migrator {
         return url.replace(':storage', `${storage}/attachments`);
     }
 
-    private async tags({ tags }: boost.Cson): Promise<models.Tag[]> {
-        return Promise.all(tags.map(name => models.Tag.create(this.db, { name })));
+    private async note(props: Parameters<typeof models.Note.create>[1]): Promise<models.Note> {
+        const note = await models.Note.create(this.db, props);
+        if (note.isNew) this.notes.set(note._id, note);
+        return note;
+    }
+
+    private async tag(name: string): Promise<models.Tag> {
+        const tag = await models.Tag.create(this.db, { name });
+        if (tag.isNew) this.tags.set(tag._id, tag);
+        return tag;
     }
 }
 

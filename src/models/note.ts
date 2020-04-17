@@ -20,28 +20,32 @@ export class Note extends Base {
 
     public static async create(db: ink.DB, props: Props): Promise<Note> {
         const _id = db.notes.createId();
-        const note = new Note({ _id, ...props });
+        const note = new Note({ _id, ...props, isNew: true });
 
         note.store(db);
 
         return note;
     }
 
-    private async store(db: ink.DB): Promise<void> {
-        const { book, tags, ...rest } = this;
+    public async store(db: ink.DB): Promise<void> {
+        const { isNew, book, tags, ...rest } = this;
+        if (isNew === false) return;
+
         const tagIds = tags.map(t => t._id);
 
-        const { ok } = await db.notes.put({
-            ...rest,
-            bookId: book._id,
-            doctype: 'markdown',
-            pinned: false,
-            share: ink.NoteVisibility.PRIVATE,
-            status: ink.NoteStatus.NONE,
-            tags: tagIds,
-        });
-
-        if (ok ===false) throw new Error(`failed to put note: ${this._id} ${this.title}`);
+        try {
+            await db.notes.put({
+                ...rest,
+                bookId: book._id,
+                doctype: 'markdown',
+                pinned: false,
+                share: ink.NoteVisibility.PRIVATE,
+                status: ink.NoteStatus.NONE,
+                tags: tagIds,
+            });
+        } catch (e) {
+            throw new Error(`failed to put note: ${this._id} ${this.title}: ${e.message}`);
+        }
     }
 }
 
