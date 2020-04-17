@@ -1,19 +1,17 @@
 import assert = require('assert'); // eslint-disable-line @typescript-eslint/no-require-imports
-import { internal } from 'src/migrator/index';
+import * as replace from 'src/migrator/replacer';
 import { File } from 'src/models';
 import { extract } from 'src/migrator/image';
 
-describe('replace()', () => {
-    const { replace } = internal;
-
-    it('should replace correctly', () => {
+describe('image()', () => {
+    it('should replace images correctly', () => {
         const c = content();
         const [image] = extract(c);
 
         const props: any = { _id: 'file:ID', name: 'filename' };
         const file = new File(props);
 
-        const got = replace(c, image, file);
+        const got = replace.image(c, image, file);
         const exp = `# title
 
 https://my.inkdrop.app/

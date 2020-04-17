@@ -4,6 +4,7 @@ import * as boost from '../boostnote';
 import * as ink from '../inkdrop';
 import * as models from '../models';
 import * as img from './image';
+import * as replace from './replacer';
 
 export class Migrator {
     private readonly db: ink.DB;
@@ -75,7 +76,7 @@ export class Migrator {
                 continue;
             }
 
-            body = replace(body, image, file);
+            body = replace.image(body, image, file);
             files.push(file);
         }
 
@@ -136,22 +137,3 @@ function mime({ filename }: Pick<img.Image, 'filename'>): ink.ImageFileType {
     const ext = path.extname(filename).slice(1);
     return `image/${ext}` as ink.ImageFileType;
 }
-
-function replace(content: string, image: img.Image, file: models.File): string {
-    const { match } = image;
-    const { _id, name } = file;
-
-    // `id` is "file:XXX..."
-    const link = `![${name}](inkdrop://${_id})`;
-
-    const regexp = new RegExp(escapeRegExp(match), 'g');
-    return content.replace(regexp, link);
-}
-
-function escapeRegExp(str: string): string {
-    return str.replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
-}
-
-export const internal = {
-    replace,
-};
