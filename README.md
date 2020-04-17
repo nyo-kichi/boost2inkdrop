@@ -33,4 +33,6 @@ async function main() {
         boostDir: BOOST_DIR,
         storage: 'my-storage',
     });
+}
+main();
 ```
