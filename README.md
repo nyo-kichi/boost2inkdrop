@@ -24,12 +24,12 @@ Create [`init.js`](https://docs.inkdrop.app/manual/the-init-file), the following
 
 ```js:init.js
 const path = require('path');
-const ope = require('/path/to/boost2inkdrop/.build/src/operations');
+const { migrate } = require('/path/to/boost2inkdrop/.build/src');
 
-const BOOST_DIR = path.resolve('/path/to/Boostnote/dir');
+const BOOST_DIR = path.join(process.env.HOME, '/path/to/Boostnote/dir');
 
 async function main() {
-    await ope.migrate({
+    await migrate({
         boostDir: BOOST_DIR,
         storage: 'my-storage',
     });
@@ -38,7 +38,7 @@ main();
 ```
 
 Try launching Inkdrop.  
-Notes is migrated from Boostnote to Inkdrop.  
+Notes is migrated from Boostnote to Inkdrop as "migration.xxx" notebook.
 
 ![screenshot](https://raw.githubusercontent.com/nyo-kichi/boost2inkdrop/master/docs/inkdrop-migration.png)
 
