@@ -36,3 +36,13 @@ async function main() {
 }
 main();
 ```
+
+Try launching Inkdrop.  
+Notes is migrated from Boostnote to Inkdrop.  
+
+![screenshot](https://raw.githubusercontent.com/nyo-kichi/boost2inkdrop/master/docs/inkdrop-migration.png)
+
+## Notice
+
+If "migration.xxx" notebook doesn't exist in your Inkdrop sidebar, try adding new Notebooks (e.g. foo).  
+"migration.xxx" notebook apear in sidebar.
