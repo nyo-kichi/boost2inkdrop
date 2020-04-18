@@ -9,7 +9,8 @@ export async function migrate(opts: Options): Promise<void> {
     const { boostDir, storage } = opts;
     const db = inkdrop.main.dataStore.getLocalDB();
     const loader = await Loader.create({ boostDir, storage });
-    await new Migrator({ db, loader }).migrate('migration');
+    const bookName = `migration.${Date.now()}`;
+    await new Migrator({ db, loader }).migrate(bookName);
 }
 
 interface Options {
