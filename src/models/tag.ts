@@ -3,11 +3,13 @@ import * as ink from '../inkdrop';
 
 export class Tag extends Base {
     public readonly name: string;
+    public readonly count: number;
 
     public constructor(props: TagProps) {
-        const { name, ...rest } = props;
+        const { name, count, ...rest } = props;
         super(rest);
         this.name = name;
+        this.count = count ?? 0;
     }
 
     public static async create(db: ink.DB, { name }: Props): Promise<Tag> {
@@ -39,6 +41,7 @@ export class Tag extends Base {
 
 interface Props {
     readonly name: string;
+    readonly count?: number;
 }
 
 type TagProps = BaseProps & Props;
